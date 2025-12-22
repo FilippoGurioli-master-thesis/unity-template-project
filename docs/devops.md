@@ -235,3 +235,8 @@ This files contains all devops that have been adopted in this template.
 > This solves the problem of versioning the template: the template should not be versioned because it should not receive update, it is not meant for them. As opposite, its dependencies are meant for updates therefore the correct pattern is: structure the template -> extract reusable modules as independent packages -> import them in the template
 
 But as such the template actually will have updates and therefore it should be versioned...uffa...
+
+## Conventional commit enforcement
+
+- Lefthook: better than husky > written in go
+- commitlint: does the same thing but in CI, for double checks (probably commit lint should work only in PRs/push to main or stuff like those)
