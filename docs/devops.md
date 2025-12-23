@@ -242,3 +242,26 @@ But as such the template actually will have updates and therefore it should be v
 - commitlint: does the same thing but in CI, for double checks (probably commit lint should work only in PRs/push to main or stuff like those)
 
 > ! WARNING: remember to add asmdefs!
+
+## Unity package creation
+
+I found that just creating a package in Unity is not trivial ([link to the official documentation](https://docs.unity3d.com/6000.3/Documentation/Manual/cus-pkg-lp.html)).
+
+Constraints:
+
+- In order to be opened (generate `.meta` files, launch its tests, etc.) it must be imported in a unity project. I.e. Unity Editor does not support the development of just a package
+- In order to be distributed the git project must contain just the package without the unity project
+- In order to be considered a real template, my project should contain all boilerplate files and directories
+- The official way to create a package meant for distribution is to reference it via `file:path/to/package.json` in the unity project and develop it like that
+
+There are 2 main kinds of packages in Unity:
+
+- packages with **unitypackage** extension: meant for graphical and sound assets such as 3D models, UIs, materials, SFX etc.
+- packages that lives inside the Package folder in a Unity project: these are managed by the UPM and can be imported via file system (path ref), git repo (url) and tarball (a zip file) and are general purpose
+
+Obviously the second case is the one that fits my case study.
+
+### The result
+
+The best way to create my template therefore is: just track the package with git but it is silently surrounded by a Unity Project. In a second moment I could possibly add a feature that creates the surrounding project via a bootstrap command.
+
