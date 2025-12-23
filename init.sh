@@ -61,6 +61,25 @@ replaceInFiles() {
     xargs sed -i "s/${search//\//\\/}/${replace//\//\\/}/g"
 }
 
+renameFiles() {
+  local search="$1"
+  local replace="$2"
+
+  find . -type f -print0 | while IFS= read -r -d '' file; do
+    local dirname
+    local basename
+    local newname
+
+    basename="$(basename "$file")"
+    dirname="$(dirname "$file")"
+
+    if [[ "$basename" == *"$search"* ]]; then
+      newname="${basename//$search/$replace}"
+      mv "$file" "$dirname/$newname" 2>/dev/null
+    fi
+  done
+}
+
 # Read customer values
 
 DOMAIN=$(askWithDefault "Enter the top level domain" "com")
@@ -76,5 +95,11 @@ replaceInFiles "__DOMAIN__" $DOMAIN
 replaceInFiles "__COMPANY__" $COMPANY
 replaceInFiles "__PACKAGE__" $PACKAGE
 replaceInFiles "__NAMESPACE__" $NAMESPACE
+
+# Rename all files with matching pattern
+renameFiles "__DOMAIN__" $DOMAIN
+renameFiles "__COMPANY__" $COMPANY
+renameFiles "__PACKAGE__" $PACKAGE
+renameFiles "__NAMESPACE__" $NAMESPACE
 
 echo "Init done, remember to configure percisely the package.json before starting your development"
