@@ -129,28 +129,28 @@ renameFiles "__NAMESPACE__" "$NAMESPACE"
 renameFiles "__NAME__" "$NAME"
 
 # Create a unity project that uses this package
-# UNITY_HUB_PATH="$HOME/Unity/Hub/Editor"
-# UNITY_PATH=$(find "$UNITY_HUB_PATH" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
-# PROJECT_PATH="$(pwd)/../${NAMESPACE}.TestProject"
-#
-# "$UNITY_PATH" \
-#   -createProject "$PROJECT_PATH" \
-#   -batchmode \
-#   -quit \
-#   -logFile "-"
-#
-# # Configure the project to link this package
-# PACKAGE_NAME="$DOMAIN.$COMPANY.$PACKAGE"
-# PACKAGE_PATH="file: ../../unity-package-template"
-# MANIFEST="$PROJECT_PATH/Packages/manifest.json"
-# if [[ ! -f "$MANIFEST" ]]; then
-#   echo "Error: manifest.json not found in $PROJECT_PATH/Packages" >&2
-#   exit 1
-# fi
-# jq --arg pkg "$PACKAGE_NAME" --arg path "$PACKAGE_PATH" \
-#   '.dependencies[$pkg] = $path' "$MANIFEST" >"$MANIFEST.tmp" && mv "$MANIFEST.tmp" "$MANIFEST"
-#
-# # Open the unity project
-# "$UNITY_PATH" "$PROJECT_PATH"
+UNITY_HUB_PATH="$HOME/Unity/Hub/Editor"
+UNITY_PATH=$(find "$UNITY_HUB_PATH" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
+PROJECT_PATH="$(pwd)/../${NAMESPACE}.TestProject"
+
+"$UNITY_PATH" \
+  -createProject "$PROJECT_PATH" \
+  -batchmode \
+  -quit \
+  -logFile "-"
+
+# Configure the project to link this package
+PACKAGE_NAME="$DOMAIN.$COMPANY.$PACKAGE"
+PACKAGE_PATH="file:../../unity-package-template"
+MANIFEST="$PROJECT_PATH/Packages/manifest.json"
+if [[ ! -f "$MANIFEST" ]]; then
+  echo "Error: manifest.json not found in $PROJECT_PATH/Packages" >&2
+  exit 1
+fi
+jq --arg pkg "$PACKAGE_NAME" --arg path "$PACKAGE_PATH" \
+  '.dependencies[$pkg] = $path' "$MANIFEST" >"$MANIFEST.tmp" && mv "$MANIFEST.tmp" "$MANIFEST"
+
+# Open the unity project
+"$UNITY_PATH" "$PROJECT_PATH"
 
 echo "Init done, remember to configure percisely the package.json before starting your development"
