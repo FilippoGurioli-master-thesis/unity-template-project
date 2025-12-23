@@ -54,11 +54,9 @@ toWords() {
     echo ""
     return 1
   fi
-  if [[ "$input" == *-* ]]; then
-    output="${input//-/ }"
-  else
-    output=$(echo "$input" | sed -E 's/([A-Z]+)([A-Z][a-z])/\1 \2/g; s/([a-z])([A-Z])/\1 \2/g')
-  fi
+  output=$(echo "$input" | sed -E \
+    -e 's/([A-Z]+)([A-Z][a-z])/\1 \2/g' \
+    -e 's/([a-z0-9])([A-Z])/\1 \2/g')
   echo "$output"
 }
 
@@ -109,25 +107,26 @@ firstMatch() {
 DOMAIN=$(askWithDefault "Enter the top level domain" "com")
 COMPANY=$(askNonNull "Enter your company name (e.g. 'mycompany')")
 PACKAGE=$(askNonNull "Enter your package name (e.g. 'awesome-tool')")
-NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal $PACKAGE))
-NAME=$(toWords $NAMESPACE)
+NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKAGE"))
+NAME=$(toWords "$NAMESPACE")
 
 echo "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
 echo "The namespace is $NAMESPACE"
+echo "The package display name is $NAME"
 
 # Replace words in all files
-replaceInFiles "__DOMAIN__" $DOMAIN
-replaceInFiles "__COMPANY__" $COMPANY
-replaceInFiles "__PACKAGE__" $PACKAGE
-replaceInFiles "__NAMESPACE__" $NAMESPACE
-replaceInFiles "__NAME__" $NAME
+replaceInFiles "__DOMAIN__" "$DOMAIN"
+replaceInFiles "__COMPANY__" "$COMPANY"
+replaceInFiles "__PACKAGE__" "$PACKAGE"
+replaceInFiles "__NAMESPACE__" "$NAMESPACE"
+replaceInFiles "__NAME__" "$NAME"
 
 # Rename all files with matching pattern
-renameFiles "__DOMAIN__" $DOMAIN
-renameFiles "__COMPANY__" $COMPANY
-renameFiles "__PACKAGE__" $PACKAGE
-renameFiles "__NAMESPACE__" $NAMESPACE
-renameFiles "__NAME__" $NAME
+renameFiles "__DOMAIN__" "$DOMAIN"
+renameFiles "__COMPANY__" "$COMPANY"
+renameFiles "__PACKAGE__" "$PACKAGE"
+renameFiles "__NAMESPACE__" "$NAMESPACE"
+renameFiles "__NAME__" "$NAME"
 
 # Create a unity project that uses this package
 # UNITY_HUB_PATH="$HOME/Unity/Hub/Editor"
