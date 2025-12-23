@@ -1,0 +1,21 @@
+{
+    "name": "YOUR_PACKAGE_ID_LOWERCASE",
+    "displayName": "YOUR_PACKAGE_NAME",
+    "author": {
+        "name": "Your_Name",
+        "url": "https://github.com/Your_Name"
+    },
+    "type": "library",
+    "hideInEditor": false,
+    "documentationUrl": "your-doc-url",
+    "changelogUrl": "url-to-changelog-in-gh",
+    "keywords": [
+        "keyword1",
+        "keyword2"
+    ],
+    "version": "0.0.0",
+    "unity": "2019.4",
+    "description": "Some description",
+    "dependencies": {},
+    "license": "YOUR-LICENSE"
+}
