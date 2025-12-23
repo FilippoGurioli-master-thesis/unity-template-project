@@ -151,6 +151,6 @@ jq --arg pkg "$PACKAGE_NAME" --arg path "$PACKAGE_PATH" \
   '.dependencies[$pkg] = $path' "$MANIFEST" >"$MANIFEST.tmp" && mv "$MANIFEST.tmp" "$MANIFEST"
 
 # Open the unity project
-"$UNITY_PATH" "$PROJECT_PATH"
+"$UNITY_PATH" -projectPath "$PROJECT_PATH"
 
 echo "Init done, remember to configure percisely the package.json before starting your development"
