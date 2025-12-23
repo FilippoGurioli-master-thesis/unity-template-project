@@ -50,8 +50,13 @@ kebabToPascal() {
 replaceInFiles() {
   local search="$1"
   local replace="$2"
+  local self
 
-  find . -type f -print0 |
+  self="./$(basename "${BASH_SOURCE[0]}")"
+
+  find . \
+    -type d -name .git -prune -o \
+    -type f ! -path "$self" -print0 |
     xargs -0 grep -Il "$search" |
     xargs sed -i "s/${search//\//\\/}/${replace//\//\\/}/g"
 }
