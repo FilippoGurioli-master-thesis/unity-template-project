@@ -1,6 +1,6 @@
 {
-    "name": "filippogurioli10.unity-package-template",
-    "rootNamespace": "UnityPackageTemplate",
+    "name": "__COMPANY__.__PACKAGE__.Editor",
+    "rootNamespace": "__NAMESPACE__.Editor",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

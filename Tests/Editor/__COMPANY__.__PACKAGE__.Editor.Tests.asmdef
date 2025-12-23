@@ -1,6 +1,6 @@
 {
-    "name": "filippogurioli10.unity-package-template.Tests",
-    "rootNamespace": "UnityPackageTemplate.Tests",
+    "name": "__COMPANY__.__PACKAGE__.Editor.Tests",
+    "rootNamespace": "__NAMESPACE__.Editor.Tests",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,22 +1,22 @@
 {
-  "name": "it.filippogurioli10.unity-package-template",
+  "name": "__DOMAIN__.__COMPANY__.__PACKAGE__",
   "version": "0.0.0",
-  "description": "a template project to speed up the creation of a unity package project",
-  "displayName": "Unity Package Template",
+  "description": "Insert a description",
+  "displayName": "__NAME__",
   "unity": "6000.2",
   "author": {
-    "name": "Filippo Gurioli",
-    "email": "filippo.gurioli@studio.unibo.it",
-    "url": "https://github.com/FilippoGurioli"
+    "name": "__COMPANY__",
+    "email": "your@email.com",
+    "url": "https://your.site.com"
   },
-  "changelogUrl": "https://github.com/FilippoGurioli-master-thesis/unity-package-template/CHANGELOG.md",
+  "changelogUrl": "https://github.com/__COMPANY__/__PACKAGE__/CHANGELOG.md",
   "dependencies": {},
-  "documentationUrl": "https://FilippoGurioli-master-thesis.github.io/unity-package-template/",
+  "documentationUrl": "https://__COMPANY__.github.io/__PACKAGE__/",
   "hideInEditor": false,
   "keywords": [
-    "template",
-    "devops",
-    "dev-automation"
+    "keyword1",
+    "keyword2",
+    "keyword3"
   ],
-  "licenseUrl": "https://github.com/FilippoGurioli-master-thesis/unity-package-template/LICENSE"
+  "licenseUrl": "https://github.com/__COMPANY__/__PACKAGE__/LICENSE"
 }
