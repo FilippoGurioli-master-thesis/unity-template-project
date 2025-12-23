@@ -110,7 +110,7 @@ DOMAIN=$(askWithDefault "Enter the top level domain" "com")
 COMPANY=$(askNonNull "Enter your company name (e.g. 'mycompany')")
 PACKAGE=$(askNonNull "Enter your package name (e.g. 'awesome-tool')")
 NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal $PACKAGE))
-NAME=$(pascalToWords $NAMESPACE)
+NAME=$(toWords $NAMESPACE)
 
 echo "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
 echo "The namespace is $NAMESPACE"
