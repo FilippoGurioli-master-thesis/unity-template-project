@@ -125,7 +125,7 @@ PROJECT_PATH="$(pwd)/../${NAMESPACE}.TestProject"
 
 # Configure the project to link this package
 PACKAGE_NAME="$DOMAIN.$COMPANY.$PACKAGE"
-PACKAGE_PATH="file:../unity-package-template"
+PACKAGE_PATH="file: ../../unity-package-template"
 MANIFEST="$PROJECT_PATH/Packages/manifest.json"
 if [[ ! -f "$MANIFEST" ]]; then
   echo "Error: manifest.json not found in $PROJECT_PATH/Packages" >&2
