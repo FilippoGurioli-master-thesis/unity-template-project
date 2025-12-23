@@ -76,3 +76,5 @@ replaceInFiles "__DOMAIN__" $DOMAIN
 replaceInFiles "__COMPANY__" $COMPANY
 replaceInFiles "__PACKAGE__" $PACKAGE
 replaceInFiles "__NAMESPACE__" $NAMESPACE
+
+echo "Init done, remember to configure percisely the package.json before starting your development"
