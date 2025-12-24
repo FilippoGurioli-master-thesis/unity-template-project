@@ -161,4 +161,8 @@ PROJECT_PATH="./TemplateProject"
 # Open the unity project
 "$UNITY_PATH" -projectPath "$PROJECT_PATH"
 
+# Install hooks
+npm i
+npx lefthook install
+
 echo "Init done, remember to configure percisely the package.json before starting your development"

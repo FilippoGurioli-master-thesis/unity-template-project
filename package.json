@@ -1,0 +1,18 @@
+{
+  "name": "__PACKAGE__",
+  "version": "0.1.0",
+  "description": "Insert a description",
+  "homepage": "https://__COMPANY__.github.io/__PACKAGE__/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/__COMPANY__/__PACKAGE__.git"
+  },
+  "license": "MIT",
+  "author": "__COMPANY__",
+  "scripts": {},
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "lefthook": "^2.0.12"
+  }
+}
