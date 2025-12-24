@@ -1,3 +1,5 @@
+#requires -Version 7.0
+
 # =========================
 # Helper functions
 # =========================
@@ -30,31 +32,56 @@ function Ask-NonNull {
 }
 
 function Kebab-ToPascal {
-    param (
-        [string]$Input
-    )
+    param ([string]$Input)
 
     ($Input -split '-') |
         Where-Object { $_ -ne '' } |
-        ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1) } |
+        ForEach-Object {
+            $_.Substring(0,1).ToUpper() + $_.Substring(1)
+        } |
         Join-String
 }
 
 function To-Words {
-    param (
-        [string]$Input
-    )
+    param ([string]$Input)
 
     if ([string]::IsNullOrEmpty($Input)) {
         return ""
     }
 
-    $output = $Input `
+    return $Input `
         -replace '([A-Z]+)([A-Z][a-z])', '$1 $2' `
         -replace '([a-z0-9])([A-Z])', '$1 $2'
-
-    return $output
 }
+
+# =========================
+# Path pruning helpers
+# =========================
+
+$PrunedPaths = @(
+    "TemplateProject/Library",
+    "TemplateProject/Logs",
+    "TemplateProject/Temp",
+    "TemplateProject/obj",
+    ".git",
+    "init.ps1",
+    "init.sh"
+)
+
+function Is-PrunedPath {
+    param ([string]$Path)
+
+    foreach ($p in $PrunedPaths) {
+        if ($Path -match [regex]::Escape($p)) {
+            return $true
+        }
+    }
+    return $false
+}
+
+# =========================
+# Replace placeholders
+# =========================
 
 function Replace-InFiles {
     param (
@@ -65,14 +92,42 @@ function Replace-InFiles {
     $self = $MyInvocation.MyCommand.Path
 
     Get-ChildItem -Recurse -File |
-        Where-Object { $_.FullName -ne $self -and $_.FullName -notmatch '\\.git\\' } |
+        Where-Object {
+            $_.FullName -ne $self -and -not (Is-PrunedPath $_.FullName)
+        } |
         ForEach-Object {
             if (Select-String -Path $_.FullName -Pattern $Search -Quiet) {
-                (Get-Content $_.FullName) -replace [regex]::Escape($Search), $Replace |
+                (Get-Content $_.FullName) `
+                    -replace [regex]::Escape($Search), $Replace |
                     Set-Content $_.FullName
             }
         }
 }
+
+# =========================
+# Rename directories
+# =========================
+
+function Rename-Dirs {
+    param (
+        [string]$Search,
+        [string]$Replace
+    )
+
+    Get-ChildItem -Recurse -Directory |
+        Sort-Object FullName -Descending | # depth-first
+        Where-Object {
+            $_.Name -like "*$Search*" -and -not (Is-PrunedPath $_.FullName)
+        } |
+        ForEach-Object {
+            $newPath = $_.FullName -replace [regex]::Escape($Search), $Replace
+            Rename-Item $_.FullName $newPath
+        }
+}
+
+# =========================
+# Rename files
+# =========================
 
 function Rename-Files {
     param (
@@ -81,7 +136,9 @@ function Rename-Files {
     )
 
     Get-ChildItem -Recurse -File |
-        Where-Object { $_.Name -like "*$Search*" } |
+        Where-Object {
+            $_.Name -like "*$Search*" -and -not (Is-PrunedPath $_.FullName)
+        } |
         ForEach-Object {
             $newName = $_.Name -replace [regex]::Escape($Search), $Replace
             Rename-Item $_.FullName $newName -ErrorAction SilentlyContinue
@@ -103,14 +160,14 @@ Write-Host "The namespace is $NAMESPACE"
 Write-Host "The package display name is $NAME"
 
 # =========================
-# Replace placeholders
+# Rename directories
 # =========================
 
-Replace-InFiles "__DOMAIN__"    $DOMAIN
-Replace-InFiles "__COMPANY__"   $COMPANY
-Replace-InFiles "__PACKAGE__"   $PACKAGE
-Replace-InFiles "__NAMESPACE__" $NAMESPACE
-Replace-InFiles "__NAME__"      $NAME
+Rename-Dirs "__DOMAIN__"    $DOMAIN
+Rename-Dirs "__COMPANY__"   $COMPANY
+Rename-Dirs "__PACKAGE__"   $PACKAGE
+Rename-Dirs "__NAMESPACE__" $NAMESPACE
+Rename-Dirs "__NAME__"      $NAME
 
 # =========================
 # Rename files
@@ -123,59 +180,36 @@ Rename-Files "__NAMESPACE__" $NAMESPACE
 Rename-Files "__NAME__"      $NAME
 
 # =========================
-# Create Unity project
+# Replace placeholders
 # =========================
 
-$UNITY_HUB_PATH = Join-Path $HOME "Unity/Hub/Editor"
+Replace-InFiles "__DOMAIN__"    $DOMAIN
+Replace-InFiles "__COMPANY__"   $COMPANY
+Replace-InFiles "__PACKAGE__"   $PACKAGE
+Replace-InFiles "__NAMESPACE__" $NAMESPACE
+Replace-InFiles "__NAME__"      $NAME
 
-$UNITY_EDITOR_DIR = Get-ChildItem $UNITY_HUB_PATH -Directory |
+# =========================
+# Locate Unity editor
+# =========================
+
+$UnityEditorsRoot = Join-Path $HOME "Unity/Hub/Editor"
+
+$UnityEditorDir = Get-ChildItem $UnityEditorsRoot -Directory |
     Where-Object { $_.Name -like "6000*" } |
     Sort-Object Name |
     Select-Object -First 1
 
-if (-not $UNITY_EDITOR_DIR) {
+if (-not $UnityEditorDir) {
     Write-Error "No Unity 6000.x editor found."
     exit 1
 }
 
-$UNITY_PATH = Join-Path $UNITY_EDITOR_DIR.FullName "Editor/Unity"
-$PROJECT_PATH = Join-Path (Get-Location) "..\$NAMESPACE.TestProject"
-
-& $UNITY_PATH `
-    -createProject $PROJECT_PATH `
-    -batchmode `
-    -quit `
-    -logFile "-"
+$UNITY_PATH   = Join-Path $UnityEditorDir.FullName "Editor/Unity"
+$PROJECT_PATH = "./TemplateProject"
 
 # =========================
-# Configure manifest.json
-# =========================
-
-$PACKAGE_NAME = "$DOMAIN.$COMPANY.$PACKAGE"
-$PACKAGE_PATH = "file:../../unity-package-template"
-$MANIFEST     = Join-Path $PROJECT_PATH "Packages/manifest.json"
-
-if (-not (Test-Path $MANIFEST)) {
-    Write-Error "manifest.json not found in $PROJECT_PATH\Packages"
-    exit 1
-}
-
-$json = Get-Content $MANIFEST | ConvertFrom-Json
-$json.dependencies | Add-Member -MemberType NoteProperty -Name $PACKAGE_NAME -Value $PACKAGE_PATH -Force
-$json | ConvertTo-Json -Depth 10 | Set-Content $MANIFEST
-
-# =========================
-# Register project in Unity Hub
-# =========================
-
-if (Get-Command unityhub -ErrorAction SilentlyContinue) {
-    unityhub -- --headless projects add --path $PROJECT_PATH
-} else {
-    Write-Warning "unityhub not found; project will not be added to Unity Hub."
-}
-
-# =========================
-# Open project
+# Open Unity project
 # =========================
 
 & $UNITY_PATH -projectPath $PROJECT_PATH

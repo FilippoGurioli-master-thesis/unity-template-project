@@ -70,6 +70,7 @@ replaceInFiles() {
     -path "./TemplateProject/Logs" -prune -o \
     -path "./TemplateProject/Temp" -prune -o \
     -path "./TemplateProject/obj" -prune -o \
+    -path "./init.*" -prune -o \
     -type d -name .git -prune -o \
     -type f ! -path "$self" -print0 |
     xargs -0 grep -Il "$search" |
