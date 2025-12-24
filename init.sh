@@ -79,12 +79,12 @@ replaceInFiles() {
 renameDirs() {
   local search="$1"
   local replace="$2"
-  find . \
+  find . -depth \
     -path "./TemplateProject/Library" -prune -o \
     -path "./TemplateProject/Logs" -prune -o \
     -path "./TemplateProject/Temp" -prune -o \
     -path "./TemplateProject/obj" -prune -o \
-    -depth -type d -name "*$search*" -print0 |
+    -type d -name "*$search*" -print0 |
     while IFS= read -r -d '' dir; do
       local newdir="${dir//$search/$replace}"
       mv "$dir" "$newdir"
@@ -154,16 +154,8 @@ replaceInFiles "__PACKAGE__" "$PACKAGE"
 replaceInFiles "__NAMESPACE__" "$NAMESPACE"
 replaceInFiles "__NAME__" "$NAME"
 
-UNITY_HUB_PATH="$HOME/Unity/Hub/Editor"
-UNITY_PATH=$(find "$UNITY_HUB_PATH" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
+UNITY_PATH=$(find "$HOME/Unity/Hub/Editor" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
 PROJECT_PATH="$(pwd)/../${NAMESPACE}.TestProject"
-
-# Add the project to unity hub list
-if command -v unityhub >/dev/null 2>&1; then
-  unityhub -- --headless projects add --path "$PROJECT_PATH"
-else
-  echo "Warning: unityhub not found; project will not be added to Unity Hub." >&2
-fi
 
 # Open the unity project
 "$UNITY_PATH" -projectPath "$PROJECT_PATH"
