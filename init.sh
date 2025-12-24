@@ -155,7 +155,7 @@ replaceInFiles "__NAMESPACE__" "$NAMESPACE"
 replaceInFiles "__NAME__" "$NAME"
 
 UNITY_PATH=$(find "$HOME/Unity/Hub/Editor" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
-PROJECT_PATH="./$NAMESPACE"
+PROJECT_PATH="./TemplateProject"
 
 # Open the unity project
 "$UNITY_PATH" -projectPath "$PROJECT_PATH"
