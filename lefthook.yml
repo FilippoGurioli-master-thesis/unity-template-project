@@ -5,7 +5,10 @@ commit-msg:
 pre-commit:
   parallel: true
   commands:
+    format:
+      run: dotnet tool run csharpier check ./__NAMESPACE__
+
     validate-meta:
       run: bash Tools/validate-meta-files.sh
-    validate-scene:
+    validate-scenes:
       run: bash Tools/validate-scene-files.sh

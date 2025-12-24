@@ -161,8 +161,11 @@ PROJECT_PATH="./TemplateProject"
 # Open the unity project
 "$UNITY_PATH" -projectPath "$PROJECT_PATH"
 
-# Install hooks
+# Install deps
 npm i
+dotnet tool restore
+
+# Install hooks
 npx lefthook install
 
 echo "Init done, remember to configure percisely the package.json before starting your development"
