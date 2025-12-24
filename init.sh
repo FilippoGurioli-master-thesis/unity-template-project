@@ -64,10 +64,12 @@ replaceInFiles() {
   local search="$1"
   local replace="$2"
   local self
-
   self="./$(basename "${BASH_SOURCE[0]}")"
-
   find . \
+    -path "./TemplateProject/Library" -prune -o \
+    -path "./TemplateProject/Logs" -prune -o \
+    -path "./TemplateProject/Temp" -prune -o \
+    -path "./TemplateProject/obj" -prune -o \
     -type d -name .git -prune -o \
     -type f ! -path "$self" -print0 |
     xargs -0 grep -Il "$search" |
@@ -77,7 +79,12 @@ replaceInFiles() {
 renameDirs() {
   local search="$1"
   local replace="$2"
-  find . -depth -type d -name "*$search*" -print0 |
+  find . \
+    -path "./TemplateProject/Library" -prune -o \
+    -path "./TemplateProject/Logs" -prune -o \
+    -path "./TemplateProject/Temp" -prune -o \
+    -path "./TemplateProject/obj" -prune -o \
+    -depth -type d -name "*$search*" -print0 |
     while IFS= read -r -d '' dir; do
       local newdir="${dir//$search/$replace}"
       mv "$dir" "$newdir"
@@ -87,15 +94,17 @@ renameDirs() {
 renameFiles() {
   local search="$1"
   local replace="$2"
-
-  find . -type f -print0 | while IFS= read -r -d '' file; do
+  find . \
+    -path "./TemplateProject/Library" -prune -o \
+    -path "./TemplateProject/Logs" -prune -o \
+    -path "./TemplateProject/Temp" -prune -o \
+    -path "./TemplateProject/obj" -prune -o \
+    -type f -print0 | while IFS= read -r -d '' file; do
     local dirname
     local basename
     local newname
-
     basename="$(basename "$file")"
     dirname="$(dirname "$file")"
-
     if [[ "$basename" == *"$search"* ]]; then
       newname="${basename//$search/$replace}"
       mv "$file" "$dirname/$newname" 2>/dev/null
