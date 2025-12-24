@@ -7,3 +7,5 @@ pre-commit:
   commands:
     validate-meta:
       run: bash Tools/validate-meta-files.sh
+    validate-scene:
+      run: bash Tools/validate-scene-files.sh
