@@ -1,18 +1,20 @@
 {
-  "name": "__PACKAGE__",
+  "name": "unity-package-template",
   "version": "0.1.0",
-  "description": "Insert a description",
-  "homepage": "https://__COMPANY__.github.io/__PACKAGE__/",
+  "description": "A template for Unity projects. It contains the cutting edge features regarding development automation providing a easy way to customize and start up quickly.",
+  "homepage": "https://github.com/FilippoGurioli-master-thesis/unity-package-template/blob/main/README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/__COMPANY__/__PACKAGE__.git"
+    "url": "git+https://github.com/FilippoGurioli-master-thesis/unity-package-template.git"
   },
   "license": "MIT",
-  "author": "__COMPANY__",
+  "author": "Filippo Gurioli",
   "scripts": {},
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
-    "lefthook": "^2.0.12"
+    "lefthook": "^2.0.12",
+    "semantic-release": "^25.0.2",
+    "semantic-release-preconfigured-conventional-commits": "^1.1.157"
   }
 }

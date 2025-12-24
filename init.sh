@@ -168,4 +168,7 @@ dotnet tool restore
 # Install hooks
 npx lefthook install
 
-echo "Init done, remember to configure percisely the package.json before starting your development"
+# Remove template marker file. The execution of this script means that the project is being used as a product, not developed
+rm .template
+
+echo "Init done, remember to configure percisely the package.json before starting your development. Also set a LICENSE before publishing"
