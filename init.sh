@@ -74,6 +74,16 @@ replaceInFiles() {
     xargs sed -i "s/${search//\//\\/}/${replace//\//\\/}/g"
 }
 
+renameDirs() {
+  local search="$1"
+  local replace="$2"
+  find . -depth -type d -name "*$search*" -print0 |
+    while IFS= read -r -d '' dir; do
+      local newdir="${dir//$search/$replace}"
+      mv "$dir" "$newdir"
+    done
+}
+
 renameFiles() {
   local search="$1"
   local replace="$2"
@@ -114,12 +124,12 @@ echo "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
 echo "The namespace is $NAMESPACE"
 echo "The package display name is $NAME"
 
-# Replace words in all files
-replaceInFiles "__DOMAIN__" "$DOMAIN"
-replaceInFiles "__COMPANY__" "$COMPANY"
-replaceInFiles "__PACKAGE__" "$PACKAGE"
-replaceInFiles "__NAMESPACE__" "$NAMESPACE"
-replaceInFiles "__NAME__" "$NAME"
+# Replace all directories with matching pattern
+renameDirs "__DOMAIN__" "$DOMAIN"
+renameDirs "__COMPANY__" "$COMPANY"
+renameDirs "__PACKAGE__" "$PACKAGE"
+renameDirs "__NAMESPACE__" "$NAMESPACE"
+renameDirs "__NAME__" "$NAME"
 
 # Rename all files with matching pattern
 renameFiles "__DOMAIN__" "$DOMAIN"
@@ -127,6 +137,13 @@ renameFiles "__COMPANY__" "$COMPANY"
 renameFiles "__PACKAGE__" "$PACKAGE"
 renameFiles "__NAMESPACE__" "$NAMESPACE"
 renameFiles "__NAME__" "$NAME"
+
+# Replace words in all files
+replaceInFiles "__DOMAIN__" "$DOMAIN"
+replaceInFiles "__COMPANY__" "$COMPANY"
+replaceInFiles "__PACKAGE__" "$PACKAGE"
+replaceInFiles "__NAMESPACE__" "$NAMESPACE"
+replaceInFiles "__NAME__" "$NAME"
 
 UNITY_HUB_PATH="$HOME/Unity/Hub/Editor"
 UNITY_PATH=$(find "$UNITY_HUB_PATH" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
