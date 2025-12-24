@@ -263,3 +263,9 @@ Obviously the second case is the one that fits my case study.
 
 The best way to create my template therefore is: just track the package with git but it is silently surrounded by a Unity Project. In a second moment I could possibly add a feature that creates the surrounding project via a bootstrap command.
 
+### Init script
+
+I've created an init script to bootstrap the project in the proper way. The script does the following things:
+
+- Asks the user to insert package specific informations (such as package name and default namespace)
+- Replaces all template values among the entire project with user values
