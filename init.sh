@@ -172,3 +172,7 @@ npx lefthook install
 rm .template
 
 echo "Init done, remember to configure percisely the package.json before starting your development. Also set a LICENSE before publishing"
+
+# Auto remotion
+rm init.sh
+rm init.ps1
