@@ -7,7 +7,6 @@ pre-commit:
   commands:
     format:
       run: dotnet tool run csharpier check ./__NAMESPACE__
-
     validate-meta:
       run: bash Tools/validate-meta-files.sh
     validate-scenes:
