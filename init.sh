@@ -150,6 +150,13 @@ fi
 jq --arg pkg "$PACKAGE_NAME" --arg path "$PACKAGE_PATH" \
   '.dependencies[$pkg] = $path' "$MANIFEST" >"$MANIFEST.tmp" && mv "$MANIFEST.tmp" "$MANIFEST"
 
+# Add the project to unity hub list
+if command -v unityhub >/dev/null 2>&1; then
+  unityhub -- --headless projects add --path "$PROJECT_PATH"
+else
+  echo "Warning: unityhub not found; project will not be added to Unity Hub." >&2
+fi
+
 # Open the unity project
 "$UNITY_PATH" -projectPath "$PROJECT_PATH"
 

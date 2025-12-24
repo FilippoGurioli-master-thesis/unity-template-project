@@ -241,8 +241,6 @@ But as such the template actually will have updates and therefore it should be v
 - Lefthook: better than husky > written in go
 - commitlint: does the same thing but in CI, for double checks (probably commit lint should work only in PRs/push to main or stuff like those)
 
-> ! WARNING: remember to add asmdefs!
-
 ## Unity package creation
 
 I found that just creating a package in Unity is not trivial ([link to the official documentation](https://docs.unity3d.com/6000.3/Documentation/Manual/cus-pkg-lp.html)).
