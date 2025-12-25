@@ -12,11 +12,11 @@ info() {
 }
 
 warn() {
-  printf "[%bWARN%b] %s\n" "$COLOR_YELLOW" "$COLOR_RESET" "$1"
+  printf "[%bWARN%b] %s\n" "$COLOR_YELLOW" "$COLOR_RESET" "$1" >&2
 }
 
 error() {
-  printf "[%bERRO%b] %s\n" "$COLOR_RED" "$COLOR_RESET" "$1"
+  printf "[%bERRO%b] %s\n" "$COLOR_RED" "$COLOR_RESET" "$1" >&2
 }
 
 askWithDefault() {
