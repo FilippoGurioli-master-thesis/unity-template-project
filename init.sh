@@ -124,16 +124,6 @@ renameFiles() {
     done
 }
 
-firstMatch() {
-  local pattern="$1"
-  set -- $pattern
-  if [ "$1" = "$pattern" ]; then
-    return 1 # no match
-  fi
-  printf '%s\n' "$1"
-  return 0
-}
-
 toLower() {
   local input="$1"
   if [[ "$input" =~ [A-Z] ]]; then
