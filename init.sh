@@ -226,6 +226,21 @@ info "Removing init files since their not needed anymore"
 rm init.sh
 rm init.ps1
 
+info "Waiting unity to update lock file"
+LOCK="Packages/packages-lock.json"
+while [ ! -f "$LOCK" ]; do
+  sleep 0.5
+done
+last_mod=""
+while true; do
+  current_mod=$(stat -c %Y "$LOCK")
+  if [ "$current_mod" = "$last_mod" ]; then
+    break
+  fi
+  last_mod=$current_mod
+  sleep 2
+done
+
 info "Committing changes"
 git add .
 git commit -m "chore(init): initialize project from template"
