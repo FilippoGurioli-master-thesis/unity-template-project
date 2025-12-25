@@ -143,17 +143,33 @@ toLower() {
   return 0
 }
 
+getGithubUser() {
+  local user
+  user=$(git remote get-url origin 2>/dev/null |
+    sed -E 's#.*github.com[:/](.+)/.*#\1#')
+  if [[ -n "$user" ]]; then
+    printf '%s\n' "$user"
+    return 0
+  fi
+  if command -v gh >/dev/null 2>&1; then
+    user=$(gh api user --jq '.login' 2>/dev/null)
+    [[ -n "$user" ]] && printf '%s\n' "$user" && return 0
+  fi
+  warn "Unable to determine GitHub username. Falling back to git user.name."
+  git config user.name
+}
+
 #---------------------------------------------------------------------------------------------------
 
 # Read customer values
+GIT_USER=$(getGithubUser)
+GIT_MAIL=$(git config user.email)
 DOMAIN=$(toLower "$(askWithDefault "Enter the top level domain" "com")")
-COMPANY=$(toLower "$(askNonNull "Enter your company name (e.g. 'mycompany')")")
+COMPANY=$(toLower "$(askWithDefault "Enter your company name" "$(toLower "$GIT_USER")")")
 PACKAGE=$(toLower "$(askNonNull "Enter your package name (e.g. 'awesome-tool')")")
 NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKAGE"))
 DESCRIPTION=$(askWithDefault "Enter a description" "")
 NAME=$(toWords "$NAMESPACE")
-GIT_USER=$(git config user.name)
-GIT_MAIL=$(git config user.email)
 
 info "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
 info "The namespace is $NAMESPACE"
