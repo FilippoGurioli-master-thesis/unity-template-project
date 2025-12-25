@@ -117,17 +117,11 @@ renameFiles() {
     -path "./TemplateProject/Logs" -prune -o \
     -path "./TemplateProject/Temp" -prune -o \
     -path "./TemplateProject/obj" -prune -o \
-    -type f -print0 | while IFS= read -r -d '' file; do
-    local dirname
-    local basename
-    local newname
-    basename="$(basename "$file")"
-    dirname="$(dirname "$file")"
-    if [[ "$basename" == *"$search"* ]]; then
-      newname="${basename//$search/$replace}"
-      mv "$file" "$dirname/$newname" 2>/dev/null
-    fi
-  done
+    -type f -name "*$search*" -print0 |
+    while IFS= read -r -d '' file; do
+      local newfile="${file//$search/$replace}"
+      mv "$file" "$newfile"
+    done
 }
 
 firstMatch() {
