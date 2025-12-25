@@ -1,217 +1,183 @@
-#requires -Version 7.0
+# helper functions
 
-# =========================
-# Helper functions
-# =========================
+function Info($Message) {
+  Write-Host "[INFO] $Message" -ForegroundColor Green
+}
 
-function Ask-WithDefault {
-    param (
-        [string]$Prompt,
-        [string]$Default
-    )
+function Warn($Message) {
+  Write-Warning "[WARN] $Message"
+}
 
-    $input = Read-Host "$Prompt [default: $Default]"
+function ErrorMsg($Message) {
+  Write-Error "[ERRO] $Message"
+}
+
+function Ask-WithDefault($Prompt, $Default) {
+  $input = Read-Host "$Prompt [default: $Default]"
+  if (![string]::IsNullOrWhiteSpace($input)) {
+    return $input
+  }
+  return $Default
+}
+
+function Ask-NonNull($Prompt) {
+  while ($true) {
+    $input = Read-Host "$Prompt"
     if (![string]::IsNullOrWhiteSpace($input)) {
-        return $input
+      return $input
     }
-    return $Default
+    Write-Warning "Warning: value cannot be empty. Please try again."
+  }
 }
 
-function Ask-NonNull {
-    param (
-        [string]$Prompt
-    )
+function Kebab-ToPascal($Input) {
+  return ($Input -split '-') | ForEach-Object {
+    if ($_ -ne '') {
+      $_.Substring(0,1).ToUpper() + $_.Substring(1)
+    }
+  } | Join-String
+}
 
-    while ($true) {
-        $input = Read-Host "$Prompt"
-        if (![string]::IsNullOrWhiteSpace($input)) {
-            return $input
-        }
-        Write-Warning "Value cannot be empty. Please try again."
+function To-Words($Input) {
+  if ([string]::IsNullOrEmpty($Input)) {
+    return ""
+  }
+
+  return ($Input `
+    -replace '([A-Z]+)([A-Z][a-z])', '$1 $2' `
+    -replace '([a-z0-9])([A-Z])', '$1 $2')
+}
+
+function To-Lower($Input) {
+  if ($Input -cmatch '[A-Z]') {
+    Warn "Uppercase letters detected. Unity package IDs must be lowercase. Converting to lowercase."
+  }
+  return $Input.ToLowerInvariant()
+}
+
+function Replace-InFiles($Search, $Replace) {
+  Get-ChildItem -Recurse -File |
+    Where-Object {
+      $_.FullName -notmatch '\\TemplateProject\\(Library|Logs|Temp|obj)\\' `
+      -and $_.FullName -notmatch '\\.git\\' `
+      -and $_.Name -notmatch '^init\.'
+    } |
+    ForEach-Object {
+      $content = Get-Content $_.FullName -Raw
+      if ($content -match [regex]::Escape($Search)) {
+        $content = $content -replace [regex]::Escape($Search), $Replace
+        Set-Content $_.FullName $content -Encoding UTF8
+      }
     }
 }
 
-function Kebab-ToPascal {
-    param ([string]$Input)
-
-    ($Input -split '-') |
-        Where-Object { $_ -ne '' } |
-        ForEach-Object {
-            $_.Substring(0,1).ToUpper() + $_.Substring(1)
-        } |
-        Join-String
-}
-
-function To-Words {
-    param ([string]$Input)
-
-    if ([string]::IsNullOrEmpty($Input)) {
-        return ""
+function Rename-Dirs($Search, $Replace) {
+  Get-ChildItem -Recurse -Directory |
+    Where-Object {
+      $_.FullName -notmatch '\\TemplateProject\\(Library|Logs|Temp|obj)\\' `
+      -and $_.Name -like "*$Search*"
+    } |
+    Sort-Object FullName -Descending |
+    ForEach-Object {
+      $newName = $_.Name -replace [regex]::Escape($Search), $Replace
+      Rename-Item $_.FullName $newName
     }
-
-    return $Input `
-        -replace '([A-Z]+)([A-Z][a-z])', '$1 $2' `
-        -replace '([a-z0-9])([A-Z])', '$1 $2'
 }
 
-# =========================
-# Path pruning helpers
-# =========================
-
-$PrunedPaths = @(
-    "TemplateProject/Library",
-    "TemplateProject/Logs",
-    "TemplateProject/Temp",
-    "TemplateProject/obj",
-    ".git",
-    "init.ps1",
-    "init.sh"
-)
-
-function Is-PrunedPath {
-    param ([string]$Path)
-
-    foreach ($p in $PrunedPaths) {
-        if ($Path -match [regex]::Escape($p)) {
-            return $true
-        }
+function Rename-Files($Search, $Replace) {
+  Get-ChildItem -Recurse -File |
+    Where-Object {
+      $_.FullName -notmatch '\\TemplateProject\\(Library|Logs|Temp|obj)\\' `
+      -and $_.Name -like "*$Search*"
+    } |
+    ForEach-Object {
+      $newName = $_.Name -replace [regex]::Escape($Search), $Replace
+      Rename-Item $_.FullName $newName
     }
-    return $false
 }
 
-# =========================
-# Replace placeholders
-# =========================
+#---------------------------------------------------------------------------------------------------
 
-function Replace-InFiles {
-    param (
-        [string]$Search,
-        [string]$Replace
-    )
-
-    $self = $MyInvocation.MyCommand.Path
-
-    Get-ChildItem -Recurse -File |
-        Where-Object {
-            $_.FullName -ne $self -and -not (Is-PrunedPath $_.FullName)
-        } |
-        ForEach-Object {
-            if (Select-String -Path $_.FullName -Pattern $Search -Quiet) {
-                (Get-Content $_.FullName) `
-                    -replace [regex]::Escape($Search), $Replace |
-                    Set-Content $_.FullName
-            }
-        }
-}
-
-# =========================
-# Rename directories
-# =========================
-
-function Rename-Dirs {
-    param (
-        [string]$Search,
-        [string]$Replace
-    )
-
-    Get-ChildItem -Recurse -Directory |
-        Sort-Object FullName -Descending | # depth-first
-        Where-Object {
-            $_.Name -like "*$Search*" -and -not (Is-PrunedPath $_.FullName)
-        } |
-        ForEach-Object {
-            $newPath = $_.FullName -replace [regex]::Escape($Search), $Replace
-            Rename-Item $_.FullName $newPath
-        }
-}
-
-# =========================
-# Rename files
-# =========================
-
-function Rename-Files {
-    param (
-        [string]$Search,
-        [string]$Replace
-    )
-
-    Get-ChildItem -Recurse -File |
-        Where-Object {
-            $_.Name -like "*$Search*" -and -not (Is-PrunedPath $_.FullName)
-        } |
-        ForEach-Object {
-            $newName = $_.Name -replace [regex]::Escape($Search), $Replace
-            Rename-Item $_.FullName $newName -ErrorAction SilentlyContinue
-        }
-}
-
-# =========================
 # Read customer values
-# =========================
+$DOMAIN     = To-Lower (Ask-WithDefault "Enter the top level domain" "com")
+$COMPANY    = To-Lower (Ask-NonNull "Enter your company name (e.g. 'mycompany')")
+$PACKAGE    = To-Lower (Ask-NonNull "Enter your package name (e.g. 'awesome-tool')")
+$NAMESPACE  = Ask-WithDefault "Enter the default namespace" (Kebab-ToPascal $PACKAGE)
+$DESCRIPTION = Ask-WithDefault "Enter a description" ""
+$NAME       = To-Words $NAMESPACE
+$GIT_USER   = git config user.name
+$GIT_MAIL   = git config user.email
 
-$DOMAIN    = Ask-WithDefault "Enter the top level domain" "com"
-$COMPANY   = Ask-NonNull "Enter your company name (e.g. 'mycompany')"
-$PACKAGE   = Ask-NonNull "Enter your package name (e.g. 'awesome-tool')"
-$NAMESPACE = Ask-WithDefault "Enter the default namespace" (Kebab-ToPascal $PACKAGE)
-$NAME      = To-Words $NAMESPACE
+Info "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
+Info "The namespace is $NAMESPACE"
+Info "The package display name is $NAME"
 
-Write-Host "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
-Write-Host "The namespace is $NAMESPACE"
-Write-Host "The package display name is $NAME"
-
-# =========================
 # Rename directories
-# =========================
-
-Rename-Dirs "__DOMAIN__"    $DOMAIN
-Rename-Dirs "__COMPANY__"   $COMPANY
-Rename-Dirs "__PACKAGE__"   $PACKAGE
+Info "Renaming dirs with __DOMAIN__=$DOMAIN"
+Rename-Dirs "__DOMAIN__" $DOMAIN
+Info "Renaming dirs with __COMPANY__=$COMPANY"
+Rename-Dirs "__COMPANY__" $COMPANY
+Info "Renaming dirs with __PACKAGE__=$PACKAGE"
+Rename-Dirs "__PACKAGE__" $PACKAGE
+Info "Renaming dirs with __NAMESPACE__=$NAMESPACE"
 Rename-Dirs "__NAMESPACE__" $NAMESPACE
-Rename-Dirs "__NAME__"      $NAME
+Info "Renaming dirs with __NAME__=$NAME"
+Rename-Dirs "__NAME__" $NAME
 
-# =========================
 # Rename files
-# =========================
-
-Rename-Files "__DOMAIN__"    $DOMAIN
-Rename-Files "__COMPANY__"   $COMPANY
-Rename-Files "__PACKAGE__"   $PACKAGE
+Info "Renaming files with __DOMAIN__=$DOMAIN"
+Rename-Files "__DOMAIN__" $DOMAIN
+Info "Renaming files with __COMPANY__=$COMPANY"
+Rename-Files "__COMPANY__" $COMPANY
+Info "Renaming files with __PACKAGE__=$PACKAGE"
+Rename-Files "__PACKAGE__" $PACKAGE
+Info "Renaming files with __NAMESPACE__=$NAMESPACE"
 Rename-Files "__NAMESPACE__" $NAMESPACE
-Rename-Files "__NAME__"      $NAME
+Info "Renaming files with __NAME__=$NAME"
+Rename-Files "__NAME__" $NAME
 
-# =========================
-# Replace placeholders
-# =========================
-
-Replace-InFiles "__DOMAIN__"    $DOMAIN
-Replace-InFiles "__COMPANY__"   $COMPANY
-Replace-InFiles "__PACKAGE__"   $PACKAGE
+# Replace content
+Replace-InFiles "__DOMAIN__" $DOMAIN
+Replace-InFiles "__COMPANY__" $COMPANY
+Replace-InFiles "__PACKAGE__" $PACKAGE
 Replace-InFiles "__NAMESPACE__" $NAMESPACE
-Replace-InFiles "__NAME__"      $NAME
+Replace-InFiles "__NAME__" $NAME
+Replace-InFiles "__DESCRIPTION__" $DESCRIPTION
+Replace-InFiles "__GIT_USER__" $GIT_USER
+Replace-InFiles "__GIT_MAIL__" $GIT_MAIL
 
-# =========================
-# Locate Unity editor
-# =========================
+# Unity
+$UnityEditor = Get-ChildItem "$HOME/Unity/Hub/Editor" -Directory -Filter "6000*" |
+  Sort-Object Name |
+  Select-Object -First 1 |
+  ForEach-Object { Join-Path $_.FullName "Editor\Unity.exe" }
 
-$UnityEditorsRoot = Join-Path $HOME "Unity/Hub/Editor"
+$ProjectPath = Resolve-Path "./TemplateProject"
 
-$UnityEditorDir = Get-ChildItem $UnityEditorsRoot -Directory |
-    Where-Object { $_.Name -like "6000*" } |
-    Sort-Object Name |
-    Select-Object -First 1
+Info "Opening Unity project"
+Start-Process $UnityEditor -ArgumentList "-projectPath `"$ProjectPath`""
 
-if (-not $UnityEditorDir) {
-    Write-Error "No Unity 6000.x editor found."
-    exit 1
-}
+# Install dependencies
+Info "Installing dotnet and npm dependencies"
+npm i
+dotnet tool restore
 
-$UNITY_PATH   = Join-Path $UnityEditorDir.FullName "Editor/Unity"
-$PROJECT_PATH = "./TemplateProject"
+# Git hooks
+Info "Installing git hooks"
+npx lefthook install
 
-# =========================
-# Open Unity project
-# =========================
+# Cleanup
+Info "Removing .template file"
+Remove-Item .template -Force
 
-& $UNITY_PATH -projectPath $PROJECT_PATH
+Info "Removing init files since they're not needed anymore"
+Remove-Item init.sh, init.ps1 -Force
 
-Write-Host "Init done, remember to configure precisely the package.json before starting your development"
+Info "Waiting unity to update lock file"
+Start-Sleep -Seconds 2
+
+Info "Committing changes"
+git add .
+git commit -m "chore(init): initialize project from template"
+
+Info "Init done. Remember to configure package.json precisely and add a LICENSE before publishing."
