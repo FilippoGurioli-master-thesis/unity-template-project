@@ -249,4 +249,4 @@ info "Committing changes"
 git add .
 git commit -m "chore(init): initialize project from template"
 
-info "Init done, remember to configure percisely the package.json before starting your development. Also set a LICENSE before publishing"
+info "Init done, remember to configure precisely the package.json before starting your development. Also set a LICENSE before publishing"
