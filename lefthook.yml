@@ -7,7 +7,7 @@ pre-commit:
   commands:
     format:
       run: |
-        dotnet tool run csharpier ./__NAMESPACE__
+        dotnet tool run csharpier format ./__NAMESPACE__
         git add ./__NAMESPACE__
     validate-meta:
       run: bash Tools/validate-meta-files.sh
