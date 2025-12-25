@@ -134,15 +134,26 @@ firstMatch() {
   return 0
 }
 
+toLower() {
+  local input="$1"
+  if [[ "$input" =~ [A-Z] ]]; then
+    warn "Uppercase letters detected. Unity package IDs must be lowercase. Converting to lowercase."
+  fi
+  printf '%s\n' "$(echo "$input" | tr '[:upper:]' '[:lower:]')"
+  return 0
+}
+
 #---------------------------------------------------------------------------------------------------
 
 # Read customer values
-DOMAIN=$(askWithDefault "Enter the top level domain" "com")
-COMPANY=$(askNonNull "Enter your company name (e.g. 'mycompany')")
-PACKAGE=$(askNonNull "Enter your package name (e.g. 'awesome-tool')")
+DOMAIN=$(toLower "$(askWithDefault "Enter the top level domain" "com")")
+COMPANY=$(toLower "$(askNonNull "Enter your company name (e.g. 'mycompany')")")
+PACKAGE=$(toLower "$(askNonNull "Enter your package name (e.g. 'awesome-tool')")")
 NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKAGE"))
 DESCRIPTION=$(askWithDefault "Enter a description" "")
 NAME=$(toWords "$NAMESPACE")
+GIT_USER=$(git config user.name)
+GIT_MAIL=$(git config user.email)
 
 info "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
 info "The namespace is $NAMESPACE"
@@ -185,6 +196,10 @@ info "Replacing words with __NAME__=$NAME"
 replaceInFiles "__NAME__" "$NAME"
 info "Replacing words with __DESCRIPTION__=$DESCRIPTION"
 replaceInFiles "__DESCRIPTION__" "$DESCRIPTION"
+info "Replacing words with __GIT_USER__=$GIT_USER"
+replaceInFiles "__GIT_USER__" "$GIT_USER"
+info "Replacing words with __GIT_MAIL__=$GIT_MAIL"
+replaceInFiles "__GIT_MAIL__" "$GIT_MAIL"
 
 UNITY_PATH=$(find "$HOME/Unity/Hub/Editor" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
 PROJECT_PATH="./TemplateProject"

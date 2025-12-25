@@ -5,18 +5,18 @@
   "displayName": "__NAME__",
   "unity": "6000.2",
   "author": {
-    "name": "__COMPANY__",
-    "email": "your@email.com",
-    "url": "https://your.site.com"
+    "name": "__GIT_USER__",
+    "email": "__GIT_MAIL__",
+    "url": "https://github.com/__GIT_USER__"
   },
-  "changelogUrl": "https://github.com/__COMPANY__/__PACKAGE__/CHANGELOG.md",
+  "changelogUrl": "https://github.com/__GIT_USER__/__PACKAGE__/CHANGELOG.md",
   "dependencies": {},
-  "documentationUrl": "https://__COMPANY__.github.io/__PACKAGE__/",
+  "documentationUrl": "https://__GIT_USER__.github.io/__PACKAGE__/",
   "hideInEditor": false,
   "keywords": [
     "keyword1",
     "keyword2",
     "keyword3"
   ],
-  "licenseUrl": "https://github.com/__COMPANY__/__PACKAGE__/LICENSE"
+  "licenseUrl": "https://github.com/__GIT_USER__/__PACKAGE__/LICENSE"
 }
