@@ -1,7 +1,7 @@
 {
   "name": "__DOMAIN__.__COMPANY__.__PACKAGE__",
   "version": "0.0.0",
-  "description": "Insert a description",
+  "description": "__DESCRIPTION__",
   "displayName": "__NAME__",
   "unity": "6000.2",
   "author": {

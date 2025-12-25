@@ -128,6 +128,7 @@ DOMAIN=$(askWithDefault "Enter the top level domain" "com")
 COMPANY=$(askNonNull "Enter your company name (e.g. 'mycompany')")
 PACKAGE=$(askNonNull "Enter your package name (e.g. 'awesome-tool')")
 NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKAGE"))
+DESCRIPTION=$(askWithDefault "Enter a description" "")
 NAME=$(toWords "$NAMESPACE")
 
 echo "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
@@ -154,12 +155,13 @@ replaceInFiles "__COMPANY__" "$COMPANY"
 replaceInFiles "__PACKAGE__" "$PACKAGE"
 replaceInFiles "__NAMESPACE__" "$NAMESPACE"
 replaceInFiles "__NAME__" "$NAME"
+replaceInFiles "__DESCRIPTION__" "$DESCRIPTION"
 
 UNITY_PATH=$(find "$HOME/Unity/Hub/Editor" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
 PROJECT_PATH="./TemplateProject"
 
 # Open the unity project
-"$UNITY_PATH" -projectPath "$PROJECT_PATH"
+"$UNITY_PATH" -projectPath "$PROJECT_PATH" &
 
 # Install deps
 npm i
