@@ -2,6 +2,23 @@
 
 # helper functions
 
+COLOR_GREEN="\033[0;32m"
+COLOR_YELLOW="\033[0;33m"
+COLOR_RED="\033[0;31m"
+COLOR_RESET="\033[0m"
+
+info() {
+  printf "[%bINFO%b] %s\n" "$COLOR_GREEN" "$COLOR_RESET" "$1"
+}
+
+warn() {
+  printf "[%bWARN%b] %s\n" "$COLOR_YELLOW" "$COLOR_RESET" "$1"
+}
+
+error() {
+  printf "[%bERR%b] %s\n" "$COLOR_RED" "$COLOR_RESET" "$1"
+}
+
 askWithDefault() {
   local prompt="$1"
   local default="$2"
@@ -123,6 +140,8 @@ firstMatch() {
   return 0
 }
 
+#---------------------------------------------------------------------------------------------------
+
 # Read customer values
 DOMAIN=$(askWithDefault "Enter the top level domain" "com")
 COMPANY=$(askNonNull "Enter your company name (e.g. 'mycompany')")
@@ -131,50 +150,75 @@ NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKA
 DESCRIPTION=$(askWithDefault "Enter a description" "")
 NAME=$(toWords "$NAMESPACE")
 
-echo "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
-echo "The namespace is $NAMESPACE"
-echo "The package display name is $NAME"
+info "The resulting package unique ID is $DOMAIN.$COMPANY.$PACKAGE"
+info "The namespace is $NAMESPACE"
+info "The package display name is $NAME"
 
 # Replace all directories with matching pattern
+info "Renaming dirs with __DOMAIN__=$DOMAIN"
 renameDirs "__DOMAIN__" "$DOMAIN"
+info "Renaming dirs with __COMPANY__=$COMPANY"
 renameDirs "__COMPANY__" "$COMPANY"
+info "Renaming dirs with __PACKAGE__=$PACKAGE"
 renameDirs "__PACKAGE__" "$PACKAGE"
+info "Renaming dirs with __NAMESPACE__=$NAMESPACE"
 renameDirs "__NAMESPACE__" "$NAMESPACE"
+info "Renaming dirs with __NAME__=$NAME"
 renameDirs "__NAME__" "$NAME"
 
 # Rename all files with matching pattern
+info "Renaming files with __DOMAIN__=$DOMAIN"
 renameFiles "__DOMAIN__" "$DOMAIN"
+info "Renaming files with __COMPANY__=$COMPANY"
 renameFiles "__COMPANY__" "$COMPANY"
+info "Renaming files with __PACKAGE__=$PACKAGE"
 renameFiles "__PACKAGE__" "$PACKAGE"
+info "Renaming files with __NAMESPACE__=$NAMESPACE"
 renameFiles "__NAMESPACE__" "$NAMESPACE"
+info "Renaming files with __NAME__=$NAME"
 renameFiles "__NAME__" "$NAME"
 
 # Replace words in all files
+info "Replacing words with __DOMAIN__=$DOMAIN"
 replaceInFiles "__DOMAIN__" "$DOMAIN"
+info "Replacing words with __COMPANY__=$COMPANY"
 replaceInFiles "__COMPANY__" "$COMPANY"
+info "Replacing words with __PACKAGE__=$PACKAGE"
 replaceInFiles "__PACKAGE__" "$PACKAGE"
+info "Replacing words with __NAMESPACE__=$NAMESPACE"
 replaceInFiles "__NAMESPACE__" "$NAMESPACE"
+info "Replacing words with __NAME__=$NAME"
 replaceInFiles "__NAME__" "$NAME"
+info "Replacing words with __DESCRIPTION__=$DESCRIPTION"
 replaceInFiles "__DESCRIPTION__" "$DESCRIPTION"
 
 UNITY_PATH=$(find "$HOME/Unity/Hub/Editor" -maxdepth 1 -type d -name "6000*" | sort -V | head -n1)/Editor/Unity
 PROJECT_PATH="./TemplateProject"
 
 # Open the unity project
+info "Opening Unity project"
 "$UNITY_PATH" -projectPath "$PROJECT_PATH" &
 
 # Install deps
+info "Installing dotnet and npm dependencies"
 npm i
 dotnet tool restore
 
 # Install hooks
+info "Installing git hooks"
 npx lefthook install
 
 # Remove template marker file. The execution of this script means that the project is being used as a product, not developed
+info "Removing .template file"
 rm .template
 
-echo "Init done, remember to configure percisely the package.json before starting your development. Also set a LICENSE before publishing"
-
 # Auto remotion
+info "Removing init files since their not needed anymore"
 rm init.sh
 rm init.ps1
+
+info "Committing changes"
+git add .
+git commit -m "chore(init): initialize project from template"
+
+info "Init done, remember to configure percisely the package.json before starting your development. Also set a LICENSE before publishing"
