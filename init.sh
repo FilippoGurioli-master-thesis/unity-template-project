@@ -16,7 +16,7 @@ warn() {
 }
 
 error() {
-  printf "[%bERR%b] %s\n" "$COLOR_RED" "$COLOR_RESET" "$1"
+  printf "[%bERRO%b] %s\n" "$COLOR_RED" "$COLOR_RESET" "$1"
 }
 
 askWithDefault() {
