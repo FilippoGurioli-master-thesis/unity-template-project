@@ -126,11 +126,16 @@ renameFiles() {
 
 toLower() {
   local input="$1"
-  if [[ "$input" =~ [A-Z] ]]; then
+  local lower
+  lower=$(printf '%s' "$input" | tr '[:upper:]' '[:lower:]')
+  if [[ "$input" != "$lower" ]]; then
     warn "Uppercase letters detected. Unity package IDs must be lowercase. Converting to lowercase."
   fi
-  printf '%s\n' "$(echo "$input" | tr '[:upper:]' '[:lower:]')"
-  return 0
+  printf '%s\n' "$lower"
+}
+
+toLowerPure() {
+  printf '%s\n' "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
 }
 
 getGithubUser() {
@@ -155,7 +160,7 @@ getGithubUser() {
 GIT_USER=$(getGithubUser)
 GIT_MAIL=$(git config user.email)
 DOMAIN=$(toLower "$(askWithDefault "Enter the top level domain" "com")")
-COMPANY=$(toLower "$(askWithDefault "Enter your company name" "$(toLower "$GIT_USER")")")
+COMPANY=$(toLower "$(askWithDefault "Enter your company name" "$(toLowerPure "$GIT_USER")")")
 PACKAGE=$(toLower "$(askNonNull "Enter your package name (e.g. 'awesome-tool')")")
 NAMESPACE=$(askWithDefault "Enter the default namespace" $(kebabToPascal "$PACKAGE"))
 DESCRIPTION=$(askWithDefault "Enter a description" "")
